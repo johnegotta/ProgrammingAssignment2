@@ -11,24 +11,36 @@
 ## function), but it can be passed additional arguments
 ## that can be used in the call to the solve function
 ## nested within the cacheSolve function. The cacheSolve
-## function will return the inverse of the cached matrix
-## as well as attempt to set the value of the inverse of
-## the cached matrix using the setinverse() function
-## belonging the the cached matrix.
+## function will calculate the inverse of the cached
+## matrix if it has not already been stored in the cache.
+## If the value of the inverse is still NULL, the inverse
+## will be calculated and stored to the cache usingthe
+## setinverse() function belonging the the cached matrix.
 
 
 ## Creates a list of functions to set and return the
 ## values of a cached matrix and its index
 
 makeCacheMatrix <- function(x = matrix()) {
-        n <- NULL
+        ## Default value of inverse is NULL
+        inv_x <- NULL
+        
+        ## Function to reset the value of the matrix
         set <- function(y) {
                 x <<- y
-                n <<- NULL
+                inv_x <<- NULL
         }
+        
+        ## Function to return the value of the matrix
         get <- function() x
-        setinverse <- function(solve) n <<- solve
-        getinverse <- function() n
+        
+        ## Function to set the inverse of the matrix
+        setinverse <- function(inverse) inv_x <<- inverse
+        
+        ##Function to return the value of the inverse
+        getinverse <- function() inv_x
+        
+        ## Return list of above functions
         list(set = set, get = get,
              setinverse = setinverse,
              getinverse = getinverse)
@@ -39,13 +51,23 @@ makeCacheMatrix <- function(x = matrix()) {
 
 cacheSolve <- function(x, ...) {
         ## Return a matrix that is the inverse of 'x'
-                n <- x$getinverse()
-        if(!is.null(n)) {
+        inv_x <- x$getinverse()
+        
+        ## Return inverse without recalculating if
+        ## inverse has already been stored in cache
+        if(!is.null(inv_x)) {
                 message("getting cached data")
-                return(n)
+                return(inv_x)
         }
+        
+        ## If inverse has not been calculated,
+        ## get the value of matrix from cache and
+        ## solve for the inverse
         data <- x$get()
-        n <- solve(data, ...)
-        x$setinverse(n)
-        n
+        inv_x <- solve(data, ...)
+        
+        ## Set value of inverse in cache and
+        ## return inverse
+        x$setinverse(inv_x)
+        inv_x
 }
